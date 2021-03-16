@@ -17,17 +17,24 @@ outputPath="${EDITOR_BACKUP_PATH}/sec_edit/$(date +%Y-%m)"
 arguments=("$@")
 file=${arguments[${#arguments[@]} - 1]}
 
+if [ ! "$file" ] || [[ "$file" == -* ]]; then
+  $EDITOR "${arguments[@]/#/}"
+  exit $?
+fi
+
 tookArguments="${arguments[*]/#/}"
 unset "tookArguments[${#tookArguments[@]}-1]"
 
-filename="${file%.*}"
-extension="${file##*.}"
-outputFile="${filename}_$(date +%Y-%M-%d_%H:%m:%S).$extension"
+filename="$(basename "${file%.*}")"
+extension="${filename##*.}"
+outputFile="${filename}_$(date +%Y-%m-%d_%H:%M:%S).$extension"
 
 if [ ! -d "$outputPath" ]; then
   mkdir -p "$outputPath"
 fi
 
-cp "$file" "$outputPath/$outputFile"
+if [[ "$file" != $outputPath/* ]]; then
+  cp "$file" "$outputPath/$outputFile"
+fi
 
 $EDITOR "${tookArguments[@]/#/}" "$file"
