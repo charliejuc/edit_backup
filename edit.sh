@@ -12,7 +12,7 @@ if [ ! -d "$EDITOR_BACKUP_PATH" ]; then
   exit 1
 fi
 
-outputPath="${EDITOR_BACKUP_PATH}/sec_edit/$(date +%Y-%m)"
+outputPath="${EDITOR_BACKUP_PATH}/edit_backup_$(whoami)/$(date +%Y-%m)"
 
 arguments=("$@")
 file=${arguments[${#arguments[@]} - 1]}
@@ -25,15 +25,38 @@ fi
 tookArguments="${arguments[*]/#/}"
 unset "tookArguments[${#tookArguments[@]}-1]"
 
-filename="$(basename "${file%.*}")"
-extension="${filename##*.}"
-outputFile="${filename}_$(date +%Y-%m-%d_%H:%M:%S).$extension"
+getFilename() {
+  local filename
+  filename=$(basename "$1")
+  if [[ "$filename" == .* ]]; then
+    echo "$filename"
+    return 0
+  fi
+
+  echo "${filename%.*}"
+}
+
+getDottedExtension() {
+  local filename
+  filename=$(basename "$1")
+  if [[ "$filename" == .* ]]; then
+    echo ""
+    return 0
+  fi
+
+  echo ".${filename##*.}"
+}
+
+filename="$(getFilename "$file")"
+extension="$(getDottedExtension "$file")"
+outputFile="${filename}_$(date +%Y-%m-%d_%H:%M:%S)$extension"
 
 if [ ! -d "$outputPath" ]; then
   mkdir -p "$outputPath"
 fi
 
 if [[ "$file" != $outputPath/* ]]; then
+  echo "$outputPath/$outputFile"
   cp "$file" "$outputPath/$outputFile"
 fi
 
