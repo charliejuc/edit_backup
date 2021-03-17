@@ -39,7 +39,7 @@ getFilename() {
 getDottedExtension() {
   local filename
   filename=$(basename "$1")
-  if [[ "$filename" == .* ]]; then
+  if [[ "$filename" == .* ]] || [[ "$filename" != *.* ]]; then
     echo ""
     return 0
   fi
@@ -49,6 +49,7 @@ getDottedExtension() {
 
 filename="$(getFilename "$file")"
 extension="$(getDottedExtension "$file")"
+
 outputFile="${filename}_$(date +%Y-%m-%d_%H:%M:%S)$extension"
 
 if [ ! -d "$outputPath" ]; then
