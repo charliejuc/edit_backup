@@ -39,7 +39,7 @@ getFilename() {
 getDottedExtension() {
   local filename
   filename=$(basename "$1")
-  if [[ "$filename" == .* ]] || [[ "$filename" != *.* ]]; then
+  if [[ "$filename" == .* ]] && [[ "$filename" != .*.* ]]; then
     echo ""
     return 0
   fi
@@ -50,14 +50,13 @@ getDottedExtension() {
 filename="$(getFilename "$file")"
 extension="$(getDottedExtension "$file")"
 
-outputFile="${filename}_$(date +%Y-%m-%d_%H:%M:%S)$extension"
+outputFile="${filename}_$(date +%Y-%m-%d_%H:%M:%S)${extension}"
 
 if [ ! -d "$outputPath" ]; then
   mkdir -p "$outputPath"
 fi
 
 if [[ "$file" != $outputPath/* ]]; then
-  echo "$outputPath/$outputFile"
   cp "$file" "$outputPath/$outputFile"
 fi
 
