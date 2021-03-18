@@ -34,7 +34,7 @@ unset "tookArguments[${#tookArguments[@]}-1]"
 getFilename() {
   local filename
   filename=$(basename "$1")
-  if [[ "$filename" == .* ]]; then
+  if [[ "$filename" == .* ]] && [[ "$filename" != .*.* ]]; then
     echo "$filename"
     return 0
   fi
@@ -45,7 +45,7 @@ getFilename() {
 getDottedExtension() {
   local filename
   filename=$(basename "$1")
-  if [[ "$filename" == .* ]] && [[ "$filename" != .*.* ]]; then
+  if [[ "$filename" == .* ]] && [[ "$filename" != .*.* ]] || [[ "$filename" != *.* ]]; then
     echo ""
     return 0
   fi
@@ -62,16 +62,20 @@ if [ ! -d "$outputPath" ]; then
   mkdir -p "$outputPath"
 fi
 
-
 copied=false
-if [ -s "$file" ] && [[ "$file" != $outputPath/* ]]; then
-  cp "$file" "$outputPath/$outputFile"
-  copied=true
+alreadyBacked=false
+if [ -s "$file" ]; then
+  if [[ "$file" != $outputPath/* ]]; then
+    cp "$file" "$outputPath/$outputFile"
+    copied=true
+  else
+    alreadyBacked=true
+  fi
 fi
 
 $EDITOR "${tookArguments[@]/#/}" "$file"
 
-if [ $copied = false ] && [ -s "$file" ]; then
+if [ $alreadyBacked != true ] && [ $copied = false ] && [ -s "$file" ]; then
   cp "$file" "$outputPath/$outputFile"
 fi
 
