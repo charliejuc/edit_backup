@@ -22,6 +22,12 @@ if [ ! "$file" ] || [[ "$file" == -* ]]; then
   exit $?
 fi
 
+fileCreated=false
+if [ ! -f "$file" ]; then
+  touch "$file"
+  fileCreated=true
+fi
+
 tookArguments="${arguments[*]/#/}"
 unset "tookArguments[${#tookArguments[@]}-1]"
 
@@ -56,8 +62,19 @@ if [ ! -d "$outputPath" ]; then
   mkdir -p "$outputPath"
 fi
 
-if [[ "$file" != $outputPath/* ]]; then
+
+copied=false
+if [ -s "$file" ] && [[ "$file" != $outputPath/* ]]; then
   cp "$file" "$outputPath/$outputFile"
+  copied=true
 fi
 
 $EDITOR "${tookArguments[@]/#/}" "$file"
+
+if [ $copied = false ] && [ -s "$file" ]; then
+  cp "$file" "$outputPath/$outputFile"
+fi
+
+if [ $fileCreated = true ] && [ ! -s "$file" ]; then
+  rm "$file"
+fi
